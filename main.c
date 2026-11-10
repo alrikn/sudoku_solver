@@ -38,6 +38,7 @@ void parse_table(core_t *core, char **table)
 void free_possibilities(poss_t *poss)
 {
     poss_t *current = poss;
+
     while (current != NULL) {
         poss_t *next = current->next;
         free(current);
@@ -206,11 +207,11 @@ int confirm_single_possibilities(core_t *core)
                 core->table[row][col].possibilities->next == NULL) {
                 core->table[row][col].confirmed_num =
                     core->table[row][col].possibilities->possibility;
-                free_possibilities(core->table[row][col].possibilities);
-                core->table[row][col].possibilities = NULL;
                 printf("Confirmed number %d at position (%d, %d)\n",
                        core->table[row][col].confirmed_num, row, col);
             }
+            free_possibilities(core->table[row][col].possibilities);
+            core->table[row][col].possibilities = NULL;
         }
     }
     return 0;
