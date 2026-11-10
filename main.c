@@ -1,6 +1,6 @@
 #include "sudoku.h"
 
-int main()
+int main(void)
 {
     core_t core = {0};
     char *test_table[9] = {

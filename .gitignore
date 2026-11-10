@@ -53,3 +53,8 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# Binary
+sudoku_solver
+#logs
+*.log

@@ -1,7 +1,7 @@
 #ifndef SUDOKU_H
-#define SUDOKU_H
+    #define SUDOKU_H
 
-#include "struct.h"
+    #include "struct.h"
 
 // possibility.c
 void free_possibilities(poss_t *poss);
@@ -14,6 +14,8 @@ void initialise_table(core_t *core);
 void parse_table(core_t *core, char **table);
 void copy_block(core_t *core, int block_row, int block_col);
 void print_table(core_t *core);
+
+// checks.c
 int number_exists_in_column(core_t *core, int col, int num);
 int number_exists_in_row(core_t *core, int row, int num);
 int number_exists_in_block(core_t *core, int row, int col, int num);

@@ -5,9 +5,10 @@
 void free_possibilities(poss_t *poss)
 {
     poss_t *current = poss;
+    poss_t *next = NULL;
 
     while (current != NULL) {
-        poss_t *next = current->next;
+        next = current->next;
         free(current);
         current = next;
     }
@@ -16,6 +17,7 @@ void free_possibilities(poss_t *poss)
 poss_t *create_possibility(int possibility)
 {
     poss_t *new_poss = malloc(sizeof(poss_t));
+
     if (new_poss == NULL) {
         fprintf(stderr, "Memory allocation failed for possibility\n");
         return NULL;
@@ -29,45 +31,47 @@ poss_t *create_possibility(int possibility)
 poss_t *add_possibility(spot_t *spot, int possibility)
 {
     poss_t *new_poss = create_possibility(possibility);
+    poss_t *current = NULL;
 
-    if (new_poss == NULL) {
+    if (new_poss == NULL)
         return NULL;
-    }
     if (spot->possibilities == NULL) {
         spot->possibilities = new_poss;
-    } else {
-        poss_t *current = spot->possibilities;
-        while (current->next != NULL)
-            current = current->next;
-        current->next = new_poss;
-        new_poss->prev = current;
+        return new_poss;
     }
+    current = spot->possibilities;
+    while (current->next != NULL)
+        current = current->next;
+    current->next = new_poss;
+    new_poss->prev = current;
     return new_poss;
 }
 
+static poss_t *find_possibility(poss_t *current, int possibility)
+{
+    while (current != NULL && current->possibility != possibility)
+        current = current->next;
+    return current;
+}
+
+/*
+** returns the next possibility after the removed one,
+** or NULL if it was the last one (or was not found).
+*/
 poss_t *remove_possibility(spot_t *spot, int possibility)
 {
-    poss_t *current = spot->possibilities;
-    poss_t *to_remove = NULL;
+    poss_t *to_remove = find_possibility(spot->possibilities, possibility);
+    poss_t *next = NULL;
 
-    while (current != NULL) {
-        if (current->possibility == possibility) {
-            to_remove = current;
-            break;
-        }
-        current = current->next;
-    }
-    if (to_remove != NULL) {
-        if (to_remove->prev != NULL) {
-            to_remove->prev->next = to_remove->next;
-        } else {
-            spot->possibilities = to_remove->next;
-        }
-        if (to_remove->next != NULL) {
-            to_remove->next->prev = to_remove->prev;
-        }
-        current = to_remove->next;
-        free(to_remove);
-    }
-    return current; //return the next possibility after the removed one, or NULL if it was the last one
+    if (to_remove == NULL)
+        return NULL;
+    next = to_remove->next;
+    if (to_remove->prev != NULL)
+        to_remove->prev->next = next;
+    else
+        spot->possibilities = next;
+    if (next != NULL)
+        next->prev = to_remove->prev;
+    free(to_remove);
+    return next;
 }
