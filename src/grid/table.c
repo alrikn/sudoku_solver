@@ -56,7 +56,7 @@ void print_table(core_t *core, FILE *out)
 based on the row and the col, figures out which block and loads it inside
 core block array. This is useful for checking possibilities in a block.
 */
-void load_block(core_t * core, int row, int col)
+void load_block(core_t *core, int row, int col)
 {
     int block_row = row / 3;
     int block_col = col / 3;

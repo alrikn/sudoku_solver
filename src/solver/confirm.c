@@ -15,25 +15,30 @@ bool confirm_spot(spot_t *spot, int row, int col)
     return true;
 }
 
+/* tries each technique on one cell, in order, stops at the first that works */
+static bool confirm_cell(core_t *core, int row, int col)
+{
+    return confirm_spot(&core->table[row][col], row, col)
+        || confirm_single_hidden_column(core, col)
+        || confirm_single_hidden_block(core, row, col);
+}
+
+static bool confirm_row(core_t *core, int row)
+{
+    if (confirm_single_hidden_row(core, row))
+        return true;
+    for (int col = 0; col < 9; col++) {
+        if (confirm_cell(core, row, col))
+            return true;
+    }
+    return false;
+}
+
 int confirm_single_possibilities(core_t *core)
 {
-    bool changed = false;
-
     for (int row = 0; row < 9; row++) {
-        changed = confirm_single_hidden_row(core, row);
-        if (changed)
+        if (confirm_row(core, row))
             return true;
-        for (int col = 0; col < 9; col++) {
-            changed = confirm_spot(&core->table[row][col], row, col);
-            if (changed)
-                return true;
-            changed = confirm_single_hidden_column(core, col);
-            if (changed)
-                return true;
-            changed = confirm_single_hidden_block(core, row, col);
-            if (changed)
-                return true;
-        }
     }
     return false;
 }

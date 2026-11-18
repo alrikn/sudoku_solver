@@ -5,20 +5,8 @@
 #include <termios.h>
 #include <unistd.h>
 
-#define INPUT_MAX 256
-
-/*
-** pos: the history entry shown, NULL while on the line being typed.
-** draft: what was typed before going up, given back when coming down.
-*/
-typedef struct input_s {
-    char buf[INPUT_MAX];
-    size_t len;
-    char draft[INPUT_MAX];
-    command_history_t *pos;
-} input_t;
-
-static void show(input_t *in, const char *text)
+/* replaces what is on the prompt line with text */
+void show_input(input_t *in, const char *text)
 {
     snprintf(in->buf, INPUT_MAX, "%s", text);
     in->len = strlen(in->buf);
@@ -26,20 +14,19 @@ static void show(input_t *in, const char *text)
     fflush(stdout);
 }
 
-/* up: older entry, down: newer entry, or back to the draft */
-static void browse(core_t *core, input_t *in, bool up)
+static void erase_char(input_t *in)
 {
-    if (up && in->pos == NULL && core->prev != NULL) {
-        snprintf(in->draft, INPUT_MAX, "%s", in->buf);
-        in->pos = core->prev;
-    } else if (up && in->pos != NULL && in->pos->prev != NULL) {
-        in->pos = in->pos->prev;
-    } else if (!up && in->pos != NULL) {
-        in->pos = in->pos->next;
-    } else {
-        return;
-    }
-    show(in, in->pos != NULL ? in->pos->line : in->draft);
+    in->len--;
+    in->buf[in->len] = '\0';
+    printf("\b \b");
+}
+
+static void insert_char(input_t *in, char c)
+{
+    in->buf[in->len] = c;
+    in->len++;
+    in->buf[in->len] = '\0';
+    putchar(c);
 }
 
 /* returns 1 when the line is done, -1 on Ctrl+D on an empty line */
@@ -51,20 +38,16 @@ static int handle_key(core_t *core, input_t *in, char c)
         return 1;
     if (c == 4 && in->len == 0)
         return -1;
-    if ((c == 127 || c == '\b') && in->len > 0) {
-        in->len--;
-        in->buf[in->len] = '\0';
-        printf("\b \b");
+    if ((c == 127 || c == '\b') && in->len > 0)
+        erase_char(in);
+    if (c == 27 && read(STDIN_FILENO, seq, 2) == 2 && seq[0] == '[') {
+        if (seq[1] == 'A')
+            history_up(core, in);
+        if (seq[1] == 'B')
+            history_down(in);
     }
-    if (c == 27 && read(STDIN_FILENO, seq, 2) == 2 && seq[0] == '['
-        && (seq[1] == 'A' || seq[1] == 'B'))
-        browse(core, in, seq[1] == 'A');
-    if (c >= ' ' && c < 127 && in->len < INPUT_MAX - 1) {
-        in->buf[in->len] = c;
-        in->len++;
-        in->buf[in->len] = '\0';
-        putchar(c);
-    }
+    if (c >= ' ' && c < 127 && in->len < INPUT_MAX - 1)
+        insert_char(in, c);
     fflush(stdout);
     return 0;
 }

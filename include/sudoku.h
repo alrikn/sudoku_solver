@@ -16,7 +16,7 @@ poss_t *remove_possibility(spot_t *spot, int possibility);
 void initialise_table(core_t *core);
 void copy_block(core_t *core, int block_row, int block_col);
 void print_table(core_t *core, FILE *out);
-void load_block(core_t * core, int row, int col);
+void load_block(core_t *core, int row, int col);
 
 // src/grid/parse.c
 bool load_file(core_t *core, const char *path);

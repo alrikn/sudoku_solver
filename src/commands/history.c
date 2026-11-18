@@ -11,6 +11,13 @@ static bool is_blank(const char *line)
     return line[strspn(line, " \t\r\n")] == '\0';
 }
 
+/* true if the first len chars of line are the newest entry */
+static bool is_last(core_t *core, const char *line, size_t len)
+{
+    return core->prev != NULL && strlen(core->prev->line) == len
+        && strncmp(core->prev->line, line, len) == 0;
+}
+
 /*
 ** stores a copy of line (without its trailing newline) as the newest entry.
 ** blank lines are not stored, and repeating the last command reuses its
@@ -23,8 +30,7 @@ command_history_t *history_add(core_t *core, const char *line)
 
     if (is_blank(line))
         return NULL;
-    if (core->prev != NULL && strlen(core->prev->line) == len
-        && strncmp(core->prev->line, line, len) == 0)
+    if (is_last(core, line, len))
         return core->prev;
     entry = calloc(1, sizeof(command_history_t));
     if (entry == NULL)
@@ -53,4 +59,28 @@ void history_free(core_t *core)
         entry = prev;
     }
     core->prev = NULL;
+}
+
+/* up arrow: shows the previous command, saving what was typed first */
+void history_up(core_t *core, input_t *in)
+{
+    if (in->pos == NULL && core->prev != NULL) {
+        snprintf(in->draft, INPUT_MAX, "%s", in->buf);
+        in->pos = core->prev;
+        show_input(in, in->pos->line);
+        return;
+    }
+    if (in->pos != NULL && in->pos->prev != NULL) {
+        in->pos = in->pos->prev;
+        show_input(in, in->pos->line);
+    }
+}
+
+/* down arrow: shows the next command, or what was being typed */
+void history_down(input_t *in)
+{
+    if (in->pos == NULL)
+        return;
+    in->pos = in->pos->next;
+    show_input(in, in->pos != NULL ? in->pos->line : in->draft);
 }

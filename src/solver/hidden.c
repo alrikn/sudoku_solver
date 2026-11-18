@@ -3,20 +3,33 @@
 #include <stdio.h>
 #include <stddef.h>
 
+static bool has_possibility(spot_t *spot, int num)
+{
+    poss_t *current = spot->possibilities;
+
+    while (current != NULL) {
+        if (current->possibility == num)
+            return true;
+        current = current->next;
+    }
+    return false;
+}
+
+static void place_number(spot_t *spot, int num)
+{
+    spot->confirmed_num = num;
+    free_possibilities(spot->possibilities);
+    spot->possibilities = NULL;
+}
+
 int find_last_col_for_hidden_row(core_t *core, int row, int num, int *count)
 {
     int last_col = -1;
 
     for (int col = 0; col < 9; col++) {
-        spot_t *spot = &core->table[row][col];
-        poss_t *current = spot->possibilities;
-        while (current != NULL) {
-            if (current->possibility == num) {
-                last_col = col;
-                *count += 1;
-                break;
-            }
-            current = current->next;
+        if (has_possibility(&core->table[row][col], num)) {
+            last_col = col;
+            *count += 1;
         }
     }
     return last_col;
@@ -38,12 +51,9 @@ bool confirm_single_hidden_row(core_t *core, int row)
         count = 0;
         last_col = find_last_col_for_hidden_row(core, row, num, &count);
         if (count == 1) {
-            spot_t *spot = &core->table[row][last_col];
-            spot->confirmed_num = num;
             printf("Confirmed number (hidden row) %d at position (%d, %d)\n",
                 num, row, last_col);
-            free_possibilities(spot->possibilities);
-            spot->possibilities = NULL;
+            place_number(&core->table[row][last_col], num);
             return true;
         }
     }
@@ -53,19 +63,11 @@ bool confirm_single_hidden_row(core_t *core, int row)
 int find_last_row_for_hidden_column(core_t *core, int col, int num, int *count)
 {
     int last_row = -1;
-    spot_t *spot;
-    poss_t *current;
 
     for (int row = 0; row < 9; row++) {
-        spot = &core->table[row][col];
-        current = spot->possibilities;
-        while (current != NULL) {
-            if (current->possibility == num) {
-                last_row = row;
-                *count += 1;
-                break;
-            }
-            current = current->next;
+        if (has_possibility(&core->table[row][col], num)) {
+            last_row = row;
+            *count += 1;
         }
     }
     return last_row;
@@ -82,61 +84,51 @@ bool confirm_single_hidden_column(core_t *core, int col)
         count = 0;
         last_row = find_last_row_for_hidden_column(core, col, num, &count);
         if (count == 1) {
-            spot_t *spot = &core->table[last_row][col];
-            spot->confirmed_num = num;
             printf("Confirmed number (hidden column) %d at position (%d, %d)\n",
                 num, last_row, col);
-            free_possibilities(spot->possibilities);
-            spot->possibilities = NULL;
+            place_number(&core->table[last_row][col], num);
             return true;
         }
     }
     return false;
 }
 
-int find_last_col_for_hidden_block(core_t *core, int block_row,
-    int block_col, int num, int *count, int *last_row)
+/*
+** returns the index (0-8, row by row) of the last cell of core->block
+** that can hold num, or -1. count is set to how many cells can hold it.
+*/
+static int find_last_in_block(core_t *core, int num, int *count)
 {
-    int last_col = -1;
+    int last = -1;
 
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            spot_t *spot = &core->block[i][j];
-            poss_t *current = spot->possibilities;
-            while (current != NULL) {
-                if (current->possibility == num) {
-                    last_col = block_col * 3 + j;
-                    *last_row = block_row * 3 + i;
-                    *count += 1;
-                    break;
-                }
-                current = current->next;
-            }
+    *count = 0;
+    for (int i = 0; i < 9; i++) {
+        if (has_possibility(&core->block[i / 3][i % 3], num)) {
+            last = i;
+            *count += 1;
         }
     }
-    return last_col;
+    return last;
 }
 
 bool confirm_single_hidden_block(core_t *core, int row, int col)
 {
     int count = 0;
+    int last = -1;
     int last_row = -1;
     int last_col = -1;
 
     load_block(core, row, col);
-
     for (int num = 1; num <= 9; num++) {
         if (number_exists_in_block(core, row, col, num))
             continue;
-        count = 0;
-        last_col = find_last_col_for_hidden_block(core, row / 3, col / 3, num, &count, &last_row);
+        last = find_last_in_block(core, num, &count);
         if (count == 1) {
-            spot_t *spot = &core->table[last_row][last_col];
-            spot->confirmed_num = num;
+            last_row = row / 3 * 3 + last / 3;
+            last_col = col / 3 * 3 + last % 3;
             printf("Confirmed number (hidden block) %d at position (%d, %d)\n",
                 num, last_row, last_col);
-            free_possibilities(spot->possibilities);
-            spot->possibilities = NULL;
+            place_number(&core->table[last_row][last_col], num);
             return true;
         }
     }

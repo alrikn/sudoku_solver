@@ -3,9 +3,12 @@
 
     //#include "sudoku.h"
     #include <stdbool.h>
+    #include <stddef.h>
 
     /* max number of words on a command line, command name included */
     #define MAX_ARGS 4
+    /* max length of a line typed at the prompt */
+    #define INPUT_MAX 256
 
 typedef struct core_s core_t;
 
@@ -33,15 +36,31 @@ typedef struct command_s {
 typedef struct command_history_s {
     char *line;
     cmd_status_t status;
-    struct command_history_s *prev; //cus we want to be able to go back in history
+    //cus we want to be able to go back in history
+    struct command_history_s *prev;
     struct command_history_s *next; // newer entry, for the down arrow
 } command_history_t;
+
+/*
+** the line being typed (see src/commands/input.c).
+** pos: the history entry shown, NULL while on the line being typed.
+** draft: what was typed before going up, given back when coming down.
+*/
+typedef struct input_s {
+    char buf[INPUT_MAX];
+    size_t len;
+    char draft[INPUT_MAX];
+    command_history_t *pos;
+} input_t;
 
 // src/commands/history.c
 command_history_t *history_add(core_t *core, const char *line);
 void history_free(core_t *core);
+void history_up(core_t *core, input_t *in);
+void history_down(input_t *in);
 
 // src/commands/input.c
+void show_input(input_t *in, const char *text);
 char *read_input(core_t *core);
 
 // src/commands/dispatch.c
