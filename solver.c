@@ -92,12 +92,12 @@ int prune_possibilities(core_t *core)
 
 static void confirm_spot(spot_t *spot, int row, int col)
 {
-    if (spot->confirmed_num == 0 && spot->possibilities != NULL &&
-        spot->possibilities->next == NULL) {
-        spot->confirmed_num = spot->possibilities->possibility;
-        printf("Confirmed number %d at position (%d, %d)\n",
-            spot->confirmed_num, row, col);
-    }
+    if (spot->confirmed_num != 0 || spot->possibilities == NULL ||
+        spot->possibilities->next != NULL)
+        return;
+    spot->confirmed_num = spot->possibilities->possibility;
+    printf("Confirmed number %d at position (%d, %d)\n",
+        spot->confirmed_num, row, col);
     free_possibilities(spot->possibilities);
     spot->possibilities = NULL;
 }
@@ -118,8 +118,8 @@ int main_loop(core_t *core)
 {
     char input[10];
 
+    populate_possibilities(core);
     while (true) {
-        populate_possibilities(core);
         prune_possibilities(core);
         confirm_single_possibilities(core);
         print_table(core);
