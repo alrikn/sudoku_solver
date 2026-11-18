@@ -3,28 +3,42 @@
 
     #include "struct.h"
 
-// possibility.c
+// src/possibility/possibility.c
 void free_possibilities(poss_t *poss);
 poss_t *create_possibility(int possibility);
 poss_t *add_possibility(spot_t *spot, int possibility);
 poss_t *remove_possibility(spot_t *spot, int possibility);
 
-// table.c
+// src/grid/table.c
 void initialise_table(core_t *core);
 void parse_table(core_t *core, char **table);
 void copy_block(core_t *core, int block_row, int block_col);
 void print_table(core_t *core);
 
-// checks.c
+// src/grid/checks.c
 int number_exists_in_column(core_t *core, int col, int num);
 int number_exists_in_row(core_t *core, int row, int num);
 int number_exists_in_block(core_t *core, int row, int col, int num);
 
-// solver.c
+// src/solver/populate.c
 int populate_possibilities(core_t *core);
-int row_possibility_taken(core_t *core, int row, int col, int num);
+
+// src/solver/prune.c
 int prune_possibilities(core_t *core);
+
+// src/solver/pointing.c
+int row_possibility_taken(core_t *core, int row, int col, int num);
+
+// src/solver/hidden.c
+int find_last_col_for_hidden_row(core_t *core, int row, int num);
+void confirm_single_hidden_row(core_t *core, int row);
+int find_last_row_for_hidden_column(core_t *core, int col, int num);
+void confirm_single_hidden_column(core_t *core, int col);
+
+// src/solver/confirm.c
 int confirm_single_possibilities(core_t *core);
+
+// src/solver/main_loop.c
 int main_loop(core_t *core);
 
 #endif

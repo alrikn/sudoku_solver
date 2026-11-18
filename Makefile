@@ -7,11 +7,16 @@
 
 CC	=	clang
 
-SRC	=	main.c \
-		checks.c \
-		possibility.c \
-		solver.c \
-		table.c
+SRC	=	src/main.c \
+		src/grid/checks.c \
+		src/grid/table.c \
+		src/possibility/possibility.c \
+		src/solver/populate.c \
+		src/solver/prune.c \
+		src/solver/pointing.c \
+		src/solver/hidden.c \
+		src/solver/confirm.c \
+		src/solver/main_loop.c
 
 OBJ	= $(SRC:.c=.o)
 
