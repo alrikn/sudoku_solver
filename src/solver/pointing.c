@@ -27,63 +27,48 @@ bool pointing_row(core_t *core, int row, int col, int num)
 {
     int block_row_start = (row / 3);
     int block_col_start = (col / 3);
-    int pointing_row = block_row_start + (row % 3); //gives the row of the block that is in the same row as (row, col)
+    int pointing_row = row % 3; //the row inside core->block that is the same row as (row, col)
     int temp_row = 0;
     int temp_col = 0;
     poss_t *current = NULL;
     bool row_is_pointing = true; //assume the row is taken until we find a block that doesn't take it
     int count = 0;
+    bool confirmed = false;
 
-    load_block(core, row, col);
-    //first we check that the num is not already confirmed in the block
-    for (int i = 0; i < 9; i++) {
-        if (core->block[i / 3][i % 3].confirmed_num == num)
-            return false;
-    }
-    //then we check that all the possibilities for num in the block are on the same row
-    for (int i = 0; i < 9; i++) {
-        temp_row = i / 3;
-        temp_col = i % 3;
-        current = core->block[temp_row][temp_col].possibilities;
-        while (current != NULL) {
-            if (current->possibility == num) {
-                if (temp_row != pointing_row) {
-                    row_is_pointing = false;
-                    break;
-                }
-                count++;
-            }
-            current = current->next;
-        }
-    }
-    //then we check that there are more than 2 possibilities for num in the block, otherwise it is not a pointing row
-    // (if that doesn't happen, smth has gone very wron g somehwre, this just sanity check)
-    if (count > 3) {
-        printf("Error: pointing_row: count of possibilities for num %d in block is %d, expected 2 or 3\n", num, count);
-        return false;
-    }
-    if (!row_is_pointing)
-        return false;
-    //now we go look at the other blocks in the same horizontal band,
-    // and check if they have any possibilities for num on the same row
-    //and if they do, we remove them, because the row is already taken by the block that is pointing
+    //look at the other blocks in the same horizontal band. if one of them has
+    //all its possibilities for num on our row, num cannot be at (row, col)
     for (int block_col = 0; block_col < 3; block_col++) {
         if (block_col == block_col_start)
             continue;
         load_block(core, block_row_start * 3, block_col * 3);
+        row_is_pointing = true;
+        count = 0;
+        confirmed = false;
+        //first we check that the num is not already confirmed in the block
         for (int i = 0; i < 9; i++) {
+            if (core->block[i / 3][i % 3].confirmed_num == num)
+                confirmed = true;
+        }
+        if (confirmed)
+            continue;
+        //then we check that all the possibilities for num in the block are on the same row
+        for (int i = 0; i < 9 && row_is_pointing; i++) {
             temp_row = i / 3;
             temp_col = i % 3;
-            if (temp_row == pointing_row) {
-                current = core->block[temp_row][temp_col].possibilities;
-                while (current != NULL) {
-                    if (current->possibility == num) {
-                        printf("Pointing elimination: %d is already in block (%d, %d), so it cannot be at (%d, %d)\n", num, block_row_start, block_col, row, col);
-                        return true;
+            current = core->block[temp_row][temp_col].possibilities;
+            while (current != NULL) {
+                if (current->possibility == num) {
+                    if (temp_row != pointing_row) {
+                        row_is_pointing = false;
+                        break;
                     }
-                    current = current->next;
+                    count++;
                 }
+                current = current->next;
             }
+        }
+        if (row_is_pointing && count > 1) { //if its 1 then its a hidden single and thats already taken care of
+            return true;
         }
     }
     return false;

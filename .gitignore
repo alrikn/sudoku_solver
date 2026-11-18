@@ -60,3 +60,4 @@ sudoku_solver
 #logs
 *.log
 *solved.txt
+*partial_solve*.txt
