@@ -3,18 +3,6 @@
 #include <stdio.h>
 #include <stddef.h>
 
-static bool has_possibility(spot_t *spot, int num)
-{
-    poss_t *current = spot->possibilities;
-
-    while (current != NULL) {
-        if (current->possibility == num)
-            return true;
-        current = current->next;
-    }
-    return false;
-}
-
 static void place_number(spot_t *spot, int num)
 {
     spot->confirmed_num = num;

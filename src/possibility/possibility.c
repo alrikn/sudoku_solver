@@ -54,6 +54,11 @@ static poss_t *find_possibility(poss_t *current, int possibility)
     return current;
 }
 
+bool has_possibility(spot_t *spot, int num)
+{
+    return find_possibility(spot->possibilities, num) != NULL;
+}
+
 /*
 ** returns the next possibility after the removed one,
 ** or NULL if it was the last one (or was not found).

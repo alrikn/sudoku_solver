@@ -1,130 +1,62 @@
 #include "sudoku.h"
 #include <stdbool.h>
-#include <stddef.h>
 #include <stdio.h>
 
 /*
-** Pointing elimination: checks whether num can be ruled out at (row, col)
-** because a neighbouring block has already claimed that row for num.
+** Pointing elimination: num can be ruled out at (row, col) when another
+** block sharing its row (or column) has every possibility for num on that
+** same row (or column). num must end up there inside that block, so it
+** cannot go anywhere else on the line, including at (row, col).
 **
-** Look at the two other blocks in the same horizontal band (the blocks that
-** share rows with ours). If, in one of them, every possibility for num lies
-** on the same row, then num must end up on that row inside that block.
-** So if that row is 'row', num cannot go anywhere else on it, including
-** at (row, col).
-**
-** A block where num is already confirmed has no possibilities for it, and
-** must not count as claiming the row.
-**
-** Returns true if num is ruled out at (row, col), false otherwise.
-**
-** TODO: figure out a better name for this function
-** Plan: first, figure out which block we are in (block_row_start,
-** block_col_start), then copy the other blocks into the block array in
-** core_t, so we can work with it more easily.
-** row_is_taken might need to start as true.
+** A block where num is already confirmed does not claim anything.
 */
+
+/*
+** true if every possibility for num in core->block lies on 'line'
+** (a row of the block, or a column if is_col), with at least two of them.
+** a single one is a hidden single, already handled by hidden.c.
+*/
+static bool block_points(core_t *core, int num, int line, bool is_col)
+{
+    int count = 0;
+    int cell_line = 0;
+
+    for (int i = 0; i < 9; i++) {
+        if (!has_possibility(&core->block[i / 3][i % 3], num))
+            continue;
+        cell_line = is_col ? i % 3 : i / 3;
+        if (cell_line != line)
+            return false;
+        count++;
+    }
+    return count > 1;
+}
+
+/* checks the other blocks of the horizontal band */
 bool pointing_row(core_t *core, int row, int col, int num)
 {
-    int block_row_start = (row / 3);
-    int block_col_start = (col / 3);
-    int pointing_row = row % 3; //the row inside core->block that is the same row as (row, col)
-    int temp_row = 0;
-    int temp_col = 0;
-    poss_t *current = NULL;
-    bool row_is_pointing = true; //assume the row is taken until we find a block that doesn't take it
-    int count = 0;
-    bool confirmed = false;
-
-    //look at the other blocks in the same horizontal band. if one of them has
-    //all its possibilities for num on our row, num cannot be at (row, col)
     for (int block_col = 0; block_col < 3; block_col++) {
-        if (block_col == block_col_start)
+        if (block_col == col / 3 ||
+            number_exists_in_block(core, row, block_col * 3, num))
             continue;
-        load_block(core, block_row_start * 3, block_col * 3);
-        row_is_pointing = true;
-        count = 0;
-        confirmed = false;
-        //first we check that the num is not already confirmed in the block
-        for (int i = 0; i < 9; i++) {
-            if (core->block[i / 3][i % 3].confirmed_num == num)
-                confirmed = true;
-        }
-        if (confirmed)
-            continue;
-        //then we check that all the possibilities for num in the block are on the same row
-        for (int i = 0; i < 9 && row_is_pointing; i++) {
-            temp_row = i / 3;
-            temp_col = i % 3;
-            current = core->block[temp_row][temp_col].possibilities;
-            while (current != NULL) {
-                if (current->possibility == num) {
-                    if (temp_row != pointing_row) {
-                        row_is_pointing = false;
-                        break;
-                    }
-                    count++;
-                }
-                current = current->next;
-            }
-        }
-        if (row_is_pointing && count > 1) { //if its 1 then its a hidden single and thats already taken care of
+        load_block(core, row, block_col * 3);
+        if (block_points(core, num, row % 3, false))
             return true;
-        }
     }
     return false;
 }
 
+/* checks the other blocks of the vertical stack */
 bool pointing_col(core_t *core, int row, int col, int num)
 {
-    int block_row_start = (row / 3);
-    int block_col_start = (col / 3);
-    int pointing_col = col % 3; //the col inside core->block that is the same row as (row, col)
-    int temp_row = 0;
-    int temp_col = 0;
-    poss_t *current = NULL;
-    bool col_is_pointing = true; //assume the col is taken until we find a block that doesn't take it
-    int count = 0;
-    bool confirmed = false;
-
-    //look at the other blocks in the same vertical stack. if one of them has
-    //all its possibilities for num on our col, num cannot be at (row, col)
     for (int block_row = 0; block_row < 3; block_row++) {
-        if (block_row == block_row_start)
+        if (block_row == row / 3 ||
+            number_exists_in_block(core, block_row * 3, col, num))
             continue;
-        load_block(core, block_row * 3, block_col_start * 3);
-        col_is_pointing = true;
-        count = 0;
-        confirmed = false;
-        //first we check that the num is not already confirmed in the block
-        for (int i = 0; i < 9; i++) {
-            if (core->block[i / 3][i % 3].confirmed_num == num)
-                confirmed = true;
-        }
-        if (confirmed)
-            continue;
-        //then we check that all the possibilities for num in the block are on the same col
-        for (int i = 0; i < 9 && col_is_pointing; i++) {
-            temp_row = i / 3;
-            temp_col = i % 3;
-            current = core->block[temp_row][temp_col].possibilities;
-            while (current != NULL) {
-                if (current->possibility == num) {
-                    if (temp_col != pointing_col) {
-                        col_is_pointing = false;
-                        break;
-                    }
-                    count++;
-                }
-                current = current->next;
-            }
-        }
-        if (col_is_pointing && count > 1) { //if its 1 then its a hidden single and thats already taken care of
-            printf("Pointing elimination: %d cannot be at (%d, %d) because of block (%d, %d)\n",
-                num, row, col, block_row, block_col_start);
+        load_block(core, block_row * 3, col);
+        if (block_points(core, num, col % 3, true)) {
             return true;
         }
     }
     return false;
 }
-

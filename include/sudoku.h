@@ -11,6 +11,7 @@ void free_possibilities(poss_t *poss);
 poss_t *create_possibility(int possibility);
 poss_t *add_possibility(spot_t *spot, int possibility);
 poss_t *remove_possibility(spot_t *spot, int possibility);
+bool has_possibility(spot_t *spot, int num);
 
 // src/grid/table.c
 void initialise_table(core_t *core);
