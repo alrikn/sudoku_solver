@@ -30,9 +30,9 @@ int prune_possibilities(core_t *core);
 int row_possibility_taken(core_t *core, int row, int col, int num);
 
 // src/solver/hidden.c
-int find_last_col_for_hidden_row(core_t *core, int row, int num);
+int find_last_col_for_hidden_row(core_t *core, int row, int num, int *count);
 void confirm_single_hidden_row(core_t *core, int row);
-int find_last_row_for_hidden_column(core_t *core, int col, int num);
+int find_last_row_for_hidden_column(core_t *core, int col, int num, int *count);
 void confirm_single_hidden_column(core_t *core, int col);
 
 // src/solver/confirm.c
