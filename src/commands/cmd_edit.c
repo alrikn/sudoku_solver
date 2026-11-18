@@ -1,7 +1,7 @@
 #include "sudoku.h"
 #include <stdio.h>
 
-/* checks num against the other cells, ignoring the cell itself */
+/* checks if goes against the possibilities*/
 static bool has_conflict(core_t *core, int row, int col, int num)
 {
     int old = core->table[row][col].confirmed_num;
@@ -10,7 +10,8 @@ static bool has_conflict(core_t *core, int row, int col, int num)
     core->table[row][col].confirmed_num = 0;
     conflict = number_exists_in_row(core, row, num) ||
         number_exists_in_column(core, col, num) ||
-        number_exists_in_block(core, row, col, num);
+        number_exists_in_block(core, row, col, num) ||
+        has_possibility(&core->table[row][col], num) == false;
     core->table[row][col].confirmed_num = old;
     return conflict;
 }
@@ -28,7 +29,7 @@ cmd_status_t cmd_set(core_t *core, char **args)
         return CMD_ERROR;
     }
     if (has_conflict(core, row, col, num)) {
-        fprintf(stderr, "%d is already in that row, column or block\n", num);
+        fprintf(stderr, "%d is already in that row, column or block, or is not a valid possibility\n", num);
         return CMD_ERROR;
     }
     core->table[row][col].confirmed_num = num;

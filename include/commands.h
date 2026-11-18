@@ -88,4 +88,7 @@ cmd_status_t cmd_print_pos(core_t *core, char **args);
 cmd_status_t cmd_set(core_t *core, char **args);
 cmd_status_t cmd_clear(core_t *core, char **args);
 
+// src/commands/cmd_sanity.c
+cmd_status_t cmd_sanity(core_t *core, char **args);
+
 #endif

@@ -22,6 +22,7 @@ static const command_t COMMANDS[] = {
         cmd_write},
     {"help", 0, 0, "help", "show this list", cmd_help},
     {"exit", 0, 0, "exit", "quit", cmd_exit},
+    {"sanity", 0, 0, "sanity", "check the grid for errors", cmd_sanity},
     {NULL, 0, 0, NULL, NULL, NULL}
 };
 
@@ -79,5 +80,6 @@ cmd_status_t cmd_help(core_t *core, char **args)
     (void)args;
     for (int i = 0; COMMANDS[i].name != NULL; i++)
         printf("  %-18s %s\n", COMMANDS[i].usage, COMMANDS[i].help);
+    printf("\nEvery number must be in 1-9, and every position in 0-8.\n");
     return CMD_OK;
 }

@@ -25,7 +25,8 @@ SRC	=	src/main.c \
 		src/commands/cmd_inspect.c \
 		src/commands/cmd_edit.c \
 		src/commands/history.c \
-		src/commands/input.c
+		src/commands/input.c \
+		src/commands/cmd_sanity.c \
 
 OBJ	= $(SRC:.c=.o)
 

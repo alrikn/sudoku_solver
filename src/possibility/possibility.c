@@ -54,6 +54,12 @@ static poss_t *find_possibility(poss_t *current, int possibility)
     return current;
 }
 
+/**
+** Checks if a spot has a specific possibility.
+** @param spot The spot to check.
+** @param num The number to look for.
+** @return true if the spot has the possibility, false otherwise.
+*/
 bool has_possibility(spot_t *spot, int num)
 {
     return find_possibility(spot->possibilities, num) != NULL;
