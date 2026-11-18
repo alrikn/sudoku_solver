@@ -23,7 +23,9 @@ SRC	=	src/main.c \
 		src/commands/cmd_solver.c \
 		src/commands/cmd_io.c \
 		src/commands/cmd_inspect.c \
-		src/commands/cmd_edit.c
+		src/commands/cmd_edit.c \
+		src/commands/history.c \
+		src/commands/input.c
 
 OBJ	= $(SRC:.c=.o)
 

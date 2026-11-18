@@ -34,7 +34,15 @@ typedef struct command_history_s {
     char *line;
     cmd_status_t status;
     struct command_history_s *prev; //cus we want to be able to go back in history
+    struct command_history_s *next; // newer entry, for the down arrow
 } command_history_t;
+
+// src/commands/history.c
+command_history_t *history_add(core_t *core, const char *line);
+void history_free(core_t *core);
+
+// src/commands/input.c
+char *read_input(core_t *core);
 
 // src/commands/dispatch.c
 cmd_status_t execute_command(core_t *core, char *line);
