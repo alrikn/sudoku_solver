@@ -36,7 +36,7 @@ void refresh_possibilities(core_t *core);
 int prune_possibilities(core_t *core);
 
 // src/solver/pointing.c
-int row_possibility_taken(core_t *core, int row, int col, int num);
+bool pointing_row(core_t *core, int row, int col, int num);
 
 // src/solver/hidden.c
 int find_last_col_for_hidden_row(core_t *core, int row, int num, int *count);
