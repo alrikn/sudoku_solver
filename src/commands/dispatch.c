@@ -11,7 +11,7 @@ static const command_t COMMANDS[] = {
         "run n solving steps (default 1, Enter does 1)", cmd_step},
     {"solve", 0, 0, "solve", "run steps until solved or stuck", cmd_solve},
     {"print", 0, 0, "print", "print the grid", cmd_print},
-    {"print_pos", 1, 1, "print_pos <x,y>",
+    {"pos", 1, 1, "pos <x,y>",
         "list possibilities at column x, row y (0-8)", cmd_print_pos},
     {"set", 2, 2, "set <x,y> <n>", "place n (1-9) at column x, row y",
         cmd_set},
