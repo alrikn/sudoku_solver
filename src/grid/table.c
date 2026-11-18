@@ -11,27 +11,6 @@ void initialise_table(core_t *core)
     }
 }
 
-static void parse_row(core_t *core, char *line, int i)
-{
-    for (int j = 0; j < 9; j++) {
-        core->table[i][j].possibilities = NULL;
-        if (line[j] == '.')
-            core->table[i][j].confirmed_num = 0;
-        else
-            core->table[i][j].confirmed_num = line[j] - '0';
-    }
-}
-
-/*
-in the future this will actually parse stuff,
-for now its hard coded to test the rest of the program
-*/
-void parse_table(core_t *core, char **table)
-{
-    for (int i = 0; i < 9; i++)
-        parse_row(core, table[i], i);
-}
-
 /*
 ** copies a 3x3 block from the main table into the block array in core_t.
 ** takes top left corner of the block as input (block_row, block_col)
@@ -47,25 +26,29 @@ void copy_block(core_t *core, int block_row, int block_col)
     }
 }
 
-static void print_row(core_t *core, int i)
+static void print_row(core_t *core, int i, FILE *out)
 {
     for (int j = 0; j < 9; j++) {
         if (core->table[i][j].confirmed_num != 0)
-            printf("%d", core->table[i][j].confirmed_num);
+            fprintf(out, "%d", core->table[i][j].confirmed_num);
         else
-            printf(".");
+            fprintf(out, ".");
         if (j == 2 || j == 5)
-            printf("|");
+            fprintf(out, "|");
     }
 }
 
-void print_table(core_t *core)
+/*
+** out is stdout for the screen, or a file for the write command.
+** the format can be read back by load_file.
+*/
+void print_table(core_t *core, FILE *out)
 {
     for (int i = 0; i < 9; i++) {
-        print_row(core, i);
+        print_row(core, i, out);
         if (i == 2 || i == 5)
-            printf("\n---+---+---");
-        printf("\n");
+            fprintf(out, "\n---+---+---");
+        fprintf(out, "\n");
     }
 }
 

@@ -1,22 +1,17 @@
 #include "sudoku.h"
+#include <stdio.h>
 
-int main(void)
+int main(int argc, char **argv)
 {
     core_t core = {0};
-    char *test_table[9] = {
-        ".5..3..7.",
-        "7......2.",
-        "1.3.....6",
-        "..965.2..",
-        "36.2....7",
-        ".....1..8",
-        "....6.5..",
-        "89..4....",
-        ".......4."
-    };
 
-    parse_table(&core, test_table);
-    print_table(&core);
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <sudoku_file>\n", argv[0]);
+        return 84;
+    }
+    if (!load_file(&core, argv[1]))
+        return 84;
     main_loop(&core);
+    free_all_possibilities(&core);
     return 0;
 }

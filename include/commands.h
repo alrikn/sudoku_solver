@@ -1,0 +1,55 @@
+#ifndef COMMANDS_H
+    #define COMMANDS_H
+
+    #include "sudoku.h"
+
+    /* max number of words on a command line, command name included */
+    #define MAX_ARGS 4
+
+typedef enum cmd_status_e {
+    CMD_OK,
+    CMD_ERROR,
+    CMD_EXIT
+} cmd_status_t;
+
+/*
+** One entry of the command table (see src/commands/dispatch.c).
+** args[0] is the command name, args[1..] its arguments, NULL terminated.
+** min_args / max_args do not count the command name, and are checked
+** before run is called, so handlers can use args[1..min_args] directly.
+*/
+typedef struct command_s {
+    const char *name;
+    int min_args;
+    int max_args;
+    const char *usage;
+    const char *help;
+    cmd_status_t (*run)(core_t *core, char **args);
+} command_t;
+
+// src/commands/dispatch.c
+cmd_status_t execute_command(core_t *core, char *line);
+cmd_status_t cmd_help(core_t *core, char **args);
+
+// src/commands/args.c
+bool parse_int(const char *arg, int min, int max, int *out);
+bool parse_coords(const char *arg, int *row, int *col);
+
+// src/commands/cmd_solver.c
+cmd_status_t cmd_step(core_t *core, char **args);
+cmd_status_t cmd_solve(core_t *core, char **args);
+cmd_status_t cmd_exit(core_t *core, char **args);
+
+// src/commands/cmd_io.c
+cmd_status_t cmd_read(core_t *core, char **args);
+cmd_status_t cmd_write(core_t *core, char **args);
+cmd_status_t cmd_print(core_t *core, char **args);
+
+// src/commands/cmd_inspect.c
+cmd_status_t cmd_print_pos(core_t *core, char **args);
+
+// src/commands/cmd_edit.c
+cmd_status_t cmd_set(core_t *core, char **args);
+cmd_status_t cmd_clear(core_t *core, char **args);
+
+#endif

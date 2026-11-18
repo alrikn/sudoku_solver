@@ -33,3 +33,12 @@ int number_exists_in_block(core_t *core, int row, int col, int num)
     }
     return false;
 }
+
+bool is_solved(core_t *core)
+{
+    for (int i = 0; i < 81; i++) {
+        if (core->table[i / 9][i % 9].confirmed_num == 0)
+            return false;
+    }
+    return true;
+}

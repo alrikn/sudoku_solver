@@ -10,13 +10,20 @@ CC	=	clang
 SRC	=	src/main.c \
 		src/grid/checks.c \
 		src/grid/table.c \
+		src/grid/parse.c \
 		src/possibility/possibility.c \
 		src/solver/populate.c \
 		src/solver/prune.c \
 		src/solver/pointing.c \
 		src/solver/hidden.c \
 		src/solver/confirm.c \
-		src/solver/main_loop.c
+		src/solver/main_loop.c \
+		src/commands/dispatch.c \
+		src/commands/args.c \
+		src/commands/cmd_solver.c \
+		src/commands/cmd_io.c \
+		src/commands/cmd_inspect.c \
+		src/commands/cmd_edit.c
 
 OBJ	= $(SRC:.c=.o)
 

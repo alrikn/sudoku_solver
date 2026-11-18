@@ -27,3 +27,21 @@ int populate_possibilities(core_t *core)
     }
     return 0;
 }
+
+void free_all_possibilities(core_t *core)
+{
+    for (int i = 0; i < 81; i++) {
+        free_possibilities(core->table[i / 9][i % 9].possibilities);
+        core->table[i / 9][i % 9].possibilities = NULL;
+    }
+}
+
+/*
+** rebuilds every possibility list from scratch.
+** used after the grid is edited by hand (set / clear).
+*/
+void refresh_possibilities(core_t *core)
+{
+    free_all_possibilities(core);
+    populate_possibilities(core);
+}

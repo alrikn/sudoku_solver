@@ -1,25 +1,28 @@
-#include "sudoku.h"
+#include "commands.h"
 #include <stdio.h>
-#include <stdbool.h>
-#include <string.h>
+#include <stdlib.h>
 
 /*
-** This is where the main logic of the Sudoku solver goes.
+** reads commands until 'exit' or end of input (Ctrl+D).
+** the actual work is done by the handlers in src/commands/.
 */
 int main_loop(core_t *core)
 {
-    char input[10];
+    char *line = NULL;
+    size_t size = 0;
+    cmd_status_t status = CMD_OK;
 
-    populate_possibilities(core);
-    while (true) {
-        prune_possibilities(core);
-        confirm_single_possibilities(core);
-        print_table(core);
-        printf("Press Enter to continue or type 'exit' to quit: ");
-        fgets(input, sizeof(input), stdin);
-        if (strncmp(input, "exit", 4) == 0)
+    print_table(core, stdout);
+    printf("Press Enter to run a step, or type 'help' for commands.\n");
+    while (status != CMD_EXIT) {
+        printf("> ");
+        fflush(stdout);
+        if (getline(&line, &size, stdin) == -1) {
+            printf("\n");
             break;
+        }
+        status = execute_command(core, line);
     }
-    print_table(core);
+    free(line);
     return 0;
 }
