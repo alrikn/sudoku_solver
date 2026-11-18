@@ -25,6 +25,7 @@ all:	$(NAME)
 $(NAME):	$(OBJ)
 	$(CC) -o $(NAME) $(OBJ) $(LDFLAGS)
 
+#i will always ignore header ones for now
 check_coding_style:	CC = epiclang
 check_coding_style:	fclean $(NAME)
 
