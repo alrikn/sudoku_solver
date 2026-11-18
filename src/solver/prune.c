@@ -14,7 +14,8 @@ static void prune_spot(core_t *core, int row, int col)
         if (number_exists_in_row(core, row, num) ||
             number_exists_in_column(core, col, num) ||
             number_exists_in_block(core, row, col, num) ||
-            pointing_row(core, row, col, num))
+            pointing_row(core, row, col, num) ||
+            pointing_col(core, row, col, num))
             current = remove_possibility(spot, num);
         else
             current = current->next;

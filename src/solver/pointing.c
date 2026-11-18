@@ -1,6 +1,7 @@
 #include "sudoku.h"
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
 
 /*
 ** Pointing elimination: checks whether num can be ruled out at (row, col)
@@ -73,3 +74,57 @@ bool pointing_row(core_t *core, int row, int col, int num)
     }
     return false;
 }
+
+bool pointing_col(core_t *core, int row, int col, int num)
+{
+    int block_row_start = (row / 3);
+    int block_col_start = (col / 3);
+    int pointing_col = col % 3; //the col inside core->block that is the same row as (row, col)
+    int temp_row = 0;
+    int temp_col = 0;
+    poss_t *current = NULL;
+    bool col_is_pointing = true; //assume the col is taken until we find a block that doesn't take it
+    int count = 0;
+    bool confirmed = false;
+
+    //look at the other blocks in the same vertical stack. if one of them has
+    //all its possibilities for num on our col, num cannot be at (row, col)
+    for (int block_row = 0; block_row < 3; block_row++) {
+        if (block_row == block_row_start)
+            continue;
+        load_block(core, block_row * 3, block_col_start * 3);
+        col_is_pointing = true;
+        count = 0;
+        confirmed = false;
+        //first we check that the num is not already confirmed in the block
+        for (int i = 0; i < 9; i++) {
+            if (core->block[i / 3][i % 3].confirmed_num == num)
+                confirmed = true;
+        }
+        if (confirmed)
+            continue;
+        //then we check that all the possibilities for num in the block are on the same col
+        for (int i = 0; i < 9 && col_is_pointing; i++) {
+            temp_row = i / 3;
+            temp_col = i % 3;
+            current = core->block[temp_row][temp_col].possibilities;
+            while (current != NULL) {
+                if (current->possibility == num) {
+                    if (temp_col != pointing_col) {
+                        col_is_pointing = false;
+                        break;
+                    }
+                    count++;
+                }
+                current = current->next;
+            }
+        }
+        if (col_is_pointing && count > 1) { //if its 1 then its a hidden single and thats already taken care of
+            printf("Pointing elimination: %d cannot be at (%d, %d) because of block (%d, %d)\n",
+                num, row, col, block_row, block_col_start);
+            return true;
+        }
+    }
+    return false;
+}
+
