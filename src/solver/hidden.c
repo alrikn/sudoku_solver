@@ -1,4 +1,5 @@
 #include "sudoku.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stddef.h>
 
@@ -25,7 +26,7 @@ if there there is a number that is not on the row,
 and the number has only a single possibility on that row,
 then that number must be confirmed at that position.
 */
-void confirm_single_hidden_row(core_t *core, int row)
+bool confirm_single_hidden_row(core_t *core, int row)
 {
     int count = 0;
     int last_col = -1;
@@ -42,8 +43,10 @@ void confirm_single_hidden_row(core_t *core, int row)
                 num, row, last_col);
             free_possibilities(spot->possibilities);
             spot->possibilities = NULL;
+            return true;
         }
     }
+    return false;
 }
 
 int find_last_row_for_hidden_column(core_t *core, int col, int num, int *count)
@@ -67,7 +70,7 @@ int find_last_row_for_hidden_column(core_t *core, int col, int num, int *count)
     return last_row;
 }
 
-void confirm_single_hidden_column(core_t *core, int col)
+bool confirm_single_hidden_column(core_t *core, int col)
 {
     int count = 0;
     int last_row = -1;
@@ -84,6 +87,8 @@ void confirm_single_hidden_column(core_t *core, int col)
                 num, last_row, col);
             free_possibilities(spot->possibilities);
             spot->possibilities = NULL;
+            return true;
         }
     }
+    return false;
 }

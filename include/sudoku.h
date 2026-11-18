@@ -2,6 +2,7 @@
     #define SUDOKU_H
 
     #include "struct.h"
+    #include <stdbool.h>
 
 // src/possibility/possibility.c
 void free_possibilities(poss_t *poss);
@@ -31,9 +32,9 @@ int row_possibility_taken(core_t *core, int row, int col, int num);
 
 // src/solver/hidden.c
 int find_last_col_for_hidden_row(core_t *core, int row, int num, int *count);
-void confirm_single_hidden_row(core_t *core, int row);
+bool confirm_single_hidden_row(core_t *core, int row);
 int find_last_row_for_hidden_column(core_t *core, int col, int num, int *count);
-void confirm_single_hidden_column(core_t *core, int col);
+bool confirm_single_hidden_column(core_t *core, int col);
 
 // src/solver/confirm.c
 int confirm_single_possibilities(core_t *core);
