@@ -23,7 +23,7 @@ OBJ	= $(SRC:.c=.o)
 NAME = sudoku_solver
 
 CPPFLAGS +=	-I./include
-CFLAGS	+=	-Wall -Wextra
+CFLAGS	+=	-Wall -Wextra -g
 
 all:	$(NAME)
 

@@ -30,6 +30,9 @@ int confirm_single_possibilities(core_t *core)
             changed = confirm_single_hidden_column(core, col);
             if (changed)
                 return true;
+            changed = confirm_single_hidden_block(core, row, col);
+            if (changed)
+                return true;
         }
     }
     return false;

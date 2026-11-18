@@ -15,6 +15,7 @@ void initialise_table(core_t *core);
 void parse_table(core_t *core, char **table);
 void copy_block(core_t *core, int block_row, int block_col);
 void print_table(core_t *core);
+void load_block(core_t * core, int row, int col);
 
 // src/grid/checks.c
 int number_exists_in_column(core_t *core, int col, int num);
@@ -35,6 +36,7 @@ int find_last_col_for_hidden_row(core_t *core, int row, int num, int *count);
 bool confirm_single_hidden_row(core_t *core, int row);
 int find_last_row_for_hidden_column(core_t *core, int col, int num, int *count);
 bool confirm_single_hidden_column(core_t *core, int col);
+bool confirm_single_hidden_block(core_t *core, int row, int col);
 
 // src/solver/confirm.c
 int confirm_single_possibilities(core_t *core);
