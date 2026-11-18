@@ -1,4 +1,4 @@
-#include "commands.h"
+#include "sudoku.h"
 #include <stdio.h>
 
 /* one solving step: returns true if a number got confirmed */

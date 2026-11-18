@@ -4,6 +4,7 @@
     #include "struct.h"
     #include <stdbool.h>
     #include <stdio.h>
+    #include <stdbool.h>
 
 // src/possibility/possibility.c
 void free_possibilities(poss_t *poss);

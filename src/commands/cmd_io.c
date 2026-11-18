@@ -1,4 +1,4 @@
-#include "commands.h"
+#include "sudoku.h"
 #include <stdio.h>
 
 cmd_status_t cmd_read(core_t *core, char **args)

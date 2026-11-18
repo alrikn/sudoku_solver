@@ -1,4 +1,4 @@
-#include "commands.h"
+#include "sudoku.h"
 #include <stdio.h>
 
 /* checks num against the other cells, ignoring the cell itself */

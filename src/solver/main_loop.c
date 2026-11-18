@@ -1,4 +1,4 @@
-#include "commands.h"
+#include "sudoku.h"
 #include <stdio.h>
 #include <stdlib.h>
 

@@ -1,10 +1,13 @@
 #ifndef COMMANDS_H
     #define COMMANDS_H
 
-    #include "sudoku.h"
+    //#include "sudoku.h"
+    #include <stdbool.h>
 
     /* max number of words on a command line, command name included */
     #define MAX_ARGS 4
+
+typedef struct core_s core_t;
 
 typedef enum cmd_status_e {
     CMD_OK,
@@ -26,6 +29,12 @@ typedef struct command_s {
     const char *help;
     cmd_status_t (*run)(core_t *core, char **args);
 } command_t;
+
+typedef struct command_history_s {
+    char *line;
+    cmd_status_t status;
+    struct command_history_s *prev; //cus we want to be able to go back in history
+} command_history_t;
 
 // src/commands/dispatch.c
 cmd_status_t execute_command(core_t *core, char *line);

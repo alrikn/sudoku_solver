@@ -1,6 +1,10 @@
 #ifndef STRUCT_H
     #define STRUCT_H
 
+    #include "commands.h"
+    #include <stdbool.h>
+
+
 /* the possibility of a number, with linked list */
 typedef struct poss_s {
     int possibility;
@@ -24,6 +28,7 @@ typedef struct spot_s {
 typedef struct core_s {
     spot_t table[9][9];
     spot_t block[3][3];
+    command_history_t *prev; //for undoing commands
 } core_t;
 
 #endif
