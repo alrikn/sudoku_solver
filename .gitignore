@@ -58,3 +58,4 @@ dkms.conf
 sudoku_solver
 #logs
 *.log
+*solved.txt
